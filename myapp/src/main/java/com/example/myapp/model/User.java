@@ -1,13 +1,11 @@
 package com.example.myapp.model;
 
-import javax.print.DocFlavor.STRING;
-
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name="Users")
+@Table(name="users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
