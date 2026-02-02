@@ -1,9 +1,12 @@
 package com.example.myapp.controller;
 
-import com.example.myapp.DTO.AuthResponse;
 import com.example.myapp.DTO.LoginRequest;
 import com.example.myapp.DTO.SignupRequest;
-import com.example.myapp.services.AuthService;
+import com.example.myapp.model.User;
+import com.example.myapp.repo.UserRepository;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,15 +16,41 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    UserRepository db;
 
     @PostMapping("/signup")
-    public AuthResponse signup(@RequestBody SignupRequest request) {
-        return authService.signup(request);
+    public String signUp(@RequestBody SignupRequest sd) {
+
+        
+        if (db.findByEmail(sd.getEmail()).isPresent()) {
+            return "Email already registered";
+        }
+
+        User user = new User();
+        user.setName(sd.getName());
+        user.setEmail(sd.getEmail());
+        user.setPassword(sd.getPassword());
+        db.save(user);
+
+        return "Signup successful";
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public String loginApi(@RequestBody LoginRequest loginData) {
+
+        Optional<User> optionalUser = db.findByEmail(loginData.getEmail());
+
+        if (optionalUser.isEmpty()) {
+            return "User not found";
+        }
+
+        User user = optionalUser.get();
+
+        if (!user.getPassword().equals(loginData.getPassword())) {
+            return "Invalid password";
+        }
+
+        return "Login successful";
     }
+
 }
